@@ -6,7 +6,9 @@ import (
 	"github.com/BeCrafter/plugo"
 )
 
-type Plugin struct{}
+type Plugin struct {
+	plugo.Health
+}
 
 func (p *Plugin) SayHello(name string, msg *string) error {
 	*msg = fmt.Sprintf("Hello %s", name)

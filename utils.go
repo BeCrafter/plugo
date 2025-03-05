@@ -5,9 +5,13 @@
 package plugo
 
 import (
+	"context"
 	"fmt"
+	"log"
 	"math/rand"
+	"runtime"
 	"strings"
+	"time"
 )
 
 type meta string
@@ -49,4 +53,25 @@ func randstr(n int) string {
 	}
 
 	return string(b)
+}
+
+func CostOfFunc() func() {
+	start := time.Now()
+
+	pc, _, _, _ := runtime.Caller(1)
+	name := runtime.FuncForPC(pc).Name()
+	split := strings.Split(name, ".")
+	functionName := split[len(split)-1]
+	return func() {
+		tc := time.Since(start)
+		log.Printf("cost_%s:%v", functionName, tc.Milliseconds())
+	}
+}
+
+func CostOfFuncByMsg(ctx context.Context, msg string) func() {
+	start := time.Now()
+	return func() {
+		tc := time.Since(start)
+		log.Printf("cost_%s:%v", msg, tc.Milliseconds())
+	}
 }

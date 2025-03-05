@@ -209,10 +209,16 @@ func (p *Plugin) startHealthCheck() {
 func (p *Plugin) checkHealth() error {
 	// 创建一个简单的 ping 请求来检查插件是否响应
 	var response string
-	err := p.Call(internalObject+".Ping", 0, &response)
+	err := p.Call("Plugin.Ping", 0, &response)
 	if err != nil {
 		p.status = StatusError
 		return fmt.Errorf("health check failed: %v", err)
+	}
+
+	// 检查响应是否正确
+	if response != "pong" {
+		p.status = StatusError
+		return fmt.Errorf("invalid ping response: %s", response)
 	}
 
 	p.status = StatusRunning
@@ -278,6 +284,7 @@ func (p *Plugin) CallAsync(name string, args interface{}, resp interface{}) *Asy
 // 在 Start 之后的调用会阻塞，直到插件被正确初始化。
 func (p *Plugin) Start() {
 	p.running = true
+	p.registerInternalMethods()
 	go p.run()
 
 	// 启动健康检查
@@ -365,6 +372,19 @@ func (p *Plugin) Objects() ([]string, error) {
 
 	// 4. 返回对象列表和可能的错误
 	return objects.list, objects.err
+}
+
+func (p *Plugin) registerInternalMethods() {
+	Register(&Health{})
+}
+
+// type internalMethods struct{}
+
+type Health struct{}
+
+func (m *Health) Ping(_ int, reply *string) error {
+	*reply = "pong"
+	return nil
 }
 
 const internalObject = "PlugoRpc"
