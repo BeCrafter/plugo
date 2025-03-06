@@ -21,7 +21,7 @@
             }
         },
         {
-            "name": "plugin-helloworld",
+            "name": "plugin-tcp",
             "type": "go",
             "request": "launch",
             "mode": "auto",
@@ -30,6 +30,25 @@
             "args": [
                 "-plugo:prefix=pingoGWSZV",
                 "-plugo:proto=tcp"
+            ],
+            "dlvFlags": [
+                "--check-go-version=false",
+            ],
+            "preLaunchTask": "",
+            "env": {
+            }
+        },
+        {
+            "name": "plugin-unix",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "cwd": "${workspaceRoot}",
+            "program": "${workspaceRoot}/examples/plugo-hello-world/",
+            "args": [
+                "-plugo:prefix=pingoGWSZV",
+                "-plugo:proto=unix",
+                "-plugo:unixdir=/tmp/helloworld-unix/"
             ],
             "dlvFlags": [
                 "--check-go-version=false",

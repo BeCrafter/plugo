@@ -67,6 +67,7 @@ type Plugin struct {
 	exe         string        // 插件可执行文件路径
 	proto       string        // 通信协议(unix/tcp)
 	unixdir     string        // Unix socket 目录
+	tcpaddr     string        // TCP 地址
 	params      []string      // 启动参数
 	initTimeout time.Duration // 初始化超时时间
 	exitTimeout time.Duration // 退出超时时间
@@ -529,14 +530,17 @@ func (c *ctrl) ready(val string) bool {
 		return false
 	}
 
-	// 3. 清理临时 Unix socket 文件
+	// 3. 记录启动的服务信息
+	c.p.tcpaddr = c.addr
+
+	// 4. 清理临时 Unix socket 文件
 	if c.proto == "unix" {
 		if err := os.Remove(c.addr); err != nil {
 			c.p.handler.Error(errors.New("Cannot remove temporary socket: " + err.Error()))
 		}
 	}
 
-	// 4. 关闭初始化超时
+	// 5. 关闭初始化超时
 	c.timeoutCh = nil
 
 	return true
@@ -736,6 +740,7 @@ func (p *Plugin) run() {
 				if !c.ready(val) {
 					continue
 				}
+				p.tcpaddr = c.p.tcpaddr
 				// Start accepting calls
 				c.open()
 			default:
